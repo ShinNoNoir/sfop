@@ -1,4 +1,5 @@
 #include "CSfop.h"
+#include <algorithm>
 
 namespace SFOP {
 
