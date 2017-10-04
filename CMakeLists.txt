@@ -33,8 +33,16 @@ target_include_directories(libsfop
     $<INSTALL_INTERFACE:include/libsfop>
 )
 
+set(LIBSFOP_PLATFORM_SPECIFIC_LIBS)
+if(UNIX)    
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    list(APPEND LIBSFOP_PLATFORM_SPECIFIC_LIBS Threads::Threads)
+endif()
+
 target_link_libraries(libsfop
     OpenCL::OpenCL
+    ${LIBSFOP_PLATFORM_SPECIFIC_LIBS}
 )
 
 target_compile_definitions(libsfop
@@ -61,8 +69,16 @@ export(TARGETS libsfop FILE libsfopConfig.cmake)
 add_executable(sfop
     src/main.cpp
 )
+
+set(SFOP_PLATFORM_SPECIFIC_LIBS)
+if(UNIX)
+    find_package(X11 REQUIRED)
+    list(APPEND SFOP_PLATFORM_SPECIFIC_LIBS X11)
+endif()
+
 target_link_libraries(sfop
     libsfop
+    ${SFOP_PLATFORM_SPECIFIC_LIBS}
 )
 
 target_compile_definitions(sfop
