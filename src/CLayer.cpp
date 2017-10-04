@@ -55,7 +55,7 @@ CLayer::CLayer(
 
     // model error
     const unsigned int l_numAngles = f_type < 0.0f ? 3 : 1;
-    CImage* l_omegas_p[l_numAngles];
+    const CImage** l_omegas_p = new const CImage*[l_numAngles];
     CImage* l_gxx0_p  = NULL;
     CImage* l_2gxy0_p = NULL;
     CImage* l_gyy0_p  = NULL;
@@ -88,15 +88,15 @@ CLayer::CLayer(
     CImage* l_omega_p;
     if (f_type < 0.0f) {
         l_omega_p = f_img_p->bestOmega(l_omegas_p[0], l_omegas_p[1], l_omegas_p[2]);
-        for (unsigned int a = 0; a < l_numAngles; ++a) {
-            delete l_omegas_p[a];
-            l_omegas_p[a] = NULL;
-        }
     }
     else {
-        l_omega_p = l_omegas_p[0];
-        l_omegas_p[0] = NULL;
+        l_omega_p = l_omegas_p[0]->clone();
     }
+    for (unsigned int a = 0; a < l_numAngles; ++a) {
+        delete l_omegas_p[a];
+        l_omegas_p[a] = NULL;
+    }
+    delete[] l_omegas_p;
 
     // precision
     m_precision_p = f_img_p->precision(l_R / l_M, m_lambda2_p, l_omega_p);
