@@ -7,6 +7,8 @@ set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(OpenCL REQUIRED) # yields OpenCL::OpenCL target
 
+option(WITH_GPU "Enable GPU support in sfop executable" ON)
+
 
 ##--------------------------------------------------------------------------
 ## Library: libsfop
@@ -50,8 +52,8 @@ install(DIRECTORY src/
   FILES_MATCHING PATTERN "*.h"
 )
 install(EXPORT libsfopConfig DESTINATION ${BUILD_DIR}/share/libsfop/cmake)
+install(FILES src/sfopKernels.cl DESTINATION ${BUILD_DIR}/bin)
 export(TARGETS libsfop FILE libsfopConfig.cmake)
-
 
 ##--------------------------------------------------------------------------
 ## Executable: sfop
@@ -61,5 +63,9 @@ add_executable(sfop
 )
 target_link_libraries(sfop
     libsfop
+)
+
+target_compile_definitions(sfop
+    PRIVATE $<$<BOOL:${WITH_GPU}>:GPU>
 )
 install(TARGETS sfop RUNTIME DESTINATION ${BUILD_DIR}/bin)
