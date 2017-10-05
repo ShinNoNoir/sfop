@@ -20,11 +20,6 @@ add_library(libsfop
     src/COctave.cpp
     src/COpenCl.cpp
     src/CSfop.cpp
-    #src/CImageClTest.cpp
-    #src/CImageCpuTest.cpp
-    #src/CImageTest.cpp
-    #src/CLayerTest.cpp
-    #src/CSfopTest.cpp
 )
 
 target_include_directories(libsfop 
