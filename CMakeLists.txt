@@ -5,21 +5,24 @@ cmake_minimum_required(VERSION 3.8)
 project(SFOP VERSION 1.0 LANGUAGES CXX)
 set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-find_package(OpenCL REQUIRED) # yields OpenCL::OpenCL target
-
 option(WITH_GPU "Enable GPU support in sfop executable" ON)
+if(WITH_GPU)
+    find_package(OpenCL REQUIRED) # yields OpenCL::OpenCL target
+endif()
 
 
 ##--------------------------------------------------------------------------
 ## Library: libsfop
 ##--------------------------------------------------------------------------
+
 add_library(libsfop
-    src/CImageCl.cpp
     src/CImageCpu.cpp
     src/CLayer.cpp
     src/COctave.cpp
-    src/COpenCl.cpp
     src/CSfop.cpp
+    
+    $<$<BOOL:${WITH_GPU}>:src/COpenCl.cpp>
+    $<$<BOOL:${WITH_GPU}>:src/CImageCl.cpp>
 )
 
 target_include_directories(libsfop 
@@ -36,7 +39,7 @@ if(UNIX)
 endif()
 
 target_link_libraries(libsfop
-    OpenCL::OpenCL
+    $<$<BOOL:${WITH_GPU}>:OpenCL::OpenCL>
     ${LIBSFOP_PLATFORM_SPECIFIC_LIBS}
 )
 
@@ -55,8 +58,10 @@ install(DIRECTORY src/
   FILES_MATCHING PATTERN "*.h"
 )
 install(EXPORT libsfopConfig DESTINATION ${BUILD_DIR}/share/libsfop/cmake)
-install(FILES src/sfopKernels.cl DESTINATION ${BUILD_DIR}/bin)
 export(TARGETS libsfop FILE libsfopConfig.cmake)
+if(WITH_GPU)
+    install(FILES src/sfopKernels.cl DESTINATION ${BUILD_DIR}/bin)
+endif()
 
 ##--------------------------------------------------------------------------
 ## Executable: sfop
